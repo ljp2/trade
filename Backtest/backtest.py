@@ -1,4 +1,6 @@
 import os, sys
+sys.path.append('..')
+
 import numpy as np
 import pandas as pd
 from joblib import load
@@ -20,7 +22,7 @@ class Position:
 class Ring:
     def __init__(self, n: int):
         self.N = n
-        self.buf = np.zeros(n, dtype='int8')
+        self.buf = np.zeros(n, dtype="int8")
         self.index: int = 0
         self.last_val: int = None
 
@@ -40,11 +42,11 @@ class Ring:
         return "{}:{}".format(self.last_val, self.buf)
 
 
-BARS_DIRECTORY = "./DATA/"
+BARS_DIRECTORY = "../DATA/"
 BARS1_DIRECTORY = BARS_DIRECTORY + "bars1/"
 
-rf: RandomForestClassifier = load("Models/RF.joblib")
-scaler: StandardScaler = load("Models/Scaler.joblib")
+rf: RandomForestClassifier = load("../Models/RF.joblib")
+scaler: StandardScaler = load("../Models/Scaler.joblib")
 
 
 def getBar(day):
@@ -55,22 +57,18 @@ def getBar(day):
 
 def shortPosition(ring, position, current_bar, working_bars):
     current_bar = working_bars.iloc[-1].copy()
-    print(current_bar.time, ring)
+    print(current_bar.time, 'short', ring)
     pass
 
 
 def longPosition(ring, position, working_bars):
     current_bar = working_bars.iloc[-1].copy()
-    print(current_bar.time, ring)
+    print(current_bar.time, ' long', ring)
     pass
 
 
 def noPosition(ring, position, working_bars):
-    current_bar = working_bars.iloc[-1].copy()
-
-    print(current_bar.time, str(ring))
-
-    print(current_bar.time, ring)
+    print(working_bars.iloc[-1]['time'], ring.OK())
     if ring.OK() <= -ring.N:
         open_short(position, working_bars)
     elif ring.OK() >= ring.N:
@@ -107,7 +105,7 @@ def open_short(position, working_bars):
 def close_long(position, working_bars):
     current_bar = working_bars.iloc[-1]
     price = current_bar.close
-    transaction_profit_loss : float = price - position.price
+    transaction_profit_loss: float = price - position.price
     position.holding = 0
     position.price = None
     return transaction_profit_loss
@@ -157,7 +155,7 @@ def trade_day(day: str):
 
 
 def main():
-    days = os.listdir("./Data/bars1")
+    days = os.listdir("../Data/bars1")
     days.sort(reverse=True)
     for day in days[2:3]:
         trade_day(day)

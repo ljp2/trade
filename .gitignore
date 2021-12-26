@@ -3,3 +3,7 @@
 Data/
 
 Models/
+
+.DS_Store
+Backtest/.DS_Store
+ManageData/__pycache__/

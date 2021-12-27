@@ -8,3 +8,5 @@ Models/
 Backtest/.DS_Store
 
 ManageData/__pycache__/
+
+*/out.txt

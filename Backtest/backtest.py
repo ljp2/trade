@@ -14,10 +14,9 @@ from sklearn.preprocessing import StandardScaler
 
 
 class Position:
-    def __init__(self):
-        self.holding: int = 0
-        self.price: float
-        self.stop: float = None
+    holding = 0
+    price = None
+    stop = None
 
     def __repr__(self):
         return f"hold {self.holding}   price: {self.price}   stop: {self.stop}"
@@ -104,45 +103,50 @@ def noPosition(ring, position, working_bars):
 
 
 def open_long(position, working_bars):
-    print("\nLong opening position")
     current_bar = working_bars.iloc[-1]
     price = current_bar.close
     atr = current_bar.atr
     position.holding = 1
     position.price = price
     position.stop = price - atr
-    print(position)
+    print()
+    print(current_bar['time'], "Long opening position")
+    print("position =", position)
 
 
 def open_short(position, working_bars):
-    print("\nShort opening position")
     current_bar = working_bars.iloc[-1]
     price = current_bar.close
     atr = current_bar.atr
     position.holding = -1
     position.price = price
     position.stop = price + atr
+    print()
+    print(current_bar['time'], "Short opening position")
+    print("position =", position)
 
 
 def close_long(position, working_bars):
-    print("Long closing position")
     current_bar = working_bars.iloc[-1]
     price = current_bar.close
     transaction_profit_loss: float = price - position.price
+    print("position =", position)
+    print("transation PL =", transaction_profit_loss)
     position.holding = 0
     position.price = None
-    print("transation PL =", transaction_profit_loss)
+    print(current_bar['time'], "Long closing position")
     return transaction_profit_loss
 
 
 def close_short(position, working_bars):
-    print("Short closing position")
     current_bar = working_bars.iloc[-1]
     price: float = current_bar.close
     transaction_profit_loss: float = price - position.price
+    print("position =", position)
+    print("transation PL =", transaction_profit_loss)
     position.holding = 0
     position.price = None
-    print("transation PL =", transaction_profit_loss)
+    print(current_bar['time'], "Short closing position")
     return transaction_profit_loss
 
 
@@ -177,7 +181,6 @@ def trade_day(day: str):
     for bar in getBar(day):
         bars = bars.append(bar, ignore_index=True)
         if bars.shape[0] > 39:
-            print(bar.time)
             trade_bars(bars, position, ring)
 
 

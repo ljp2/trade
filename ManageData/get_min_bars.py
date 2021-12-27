@@ -7,7 +7,7 @@ import time
 import datetime
 import os
 
-BARS1_DIRECTORY = 'Data/bars1'
+BARS1_DIRECTORY = '../Data/bars1'
 BAR_MINUTES_1 = '1 min'
 BAR_MINUTES_5 = '5 mins'
 BARS5_DIRECTORY = 'Data/bars5'

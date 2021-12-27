@@ -1,4 +1,5 @@
 import os, sys
+
 sys.path.append('..')
 
 import numpy as np
@@ -15,8 +16,11 @@ from sklearn.preprocessing import StandardScaler
 class Position:
     def __init__(self):
         self.holding: int = 0
-        self.price: float = None
+        self.price: float
         self.stop: float = None
+
+    def __repr__(self):
+        return f"hold {self.holding}   price: {self.price}   stop: {self.stop}"
 
 
 class Ring:
@@ -35,10 +39,10 @@ class Ring:
     def last_pred(self):
         return self.last_val
 
-    def OK(self):
+    def sum(self):
         return self.buf.sum()
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return "{}:{}".format(self.last_val, self.buf)
 
 
@@ -55,68 +59,90 @@ def getBar(day):
         yield row
 
 
-def shortPosition(ring, position, current_bar, working_bars):
+def shortPosition(ring, position, working_bars):
     current_bar = working_bars.iloc[-1].copy()
-    print(current_bar.time, 'short', ring)
-    pass
+    if current_bar.close >= position.stop:
+        print("short position hit stop -- closing")
+        close_short(position, working_bars)
+        return
+    if ring.sum() >= 2:
+        print("change from sell to buy - closing short")
+        close_short(position, working_bars)
+    elif ring.sum() <= -2:
+        # still negative
+        pass
+    else:
+        # neutral stay the course
+        pass
 
 
 def longPosition(ring, position, working_bars):
     current_bar = working_bars.iloc[-1].copy()
-    print(current_bar.time, ' long', ring)
-    pass
+    if current_bar.close <= position.stop:
+        print("long position hit stop -- closing")
+        close_long(position, working_bars)
+        return
+    if ring.sum() >= 2:
+        # still positive
+        pass
+    elif ring.sum() <= -2:
+        print("change from buy to sell - closing long")
+        close_long(position, working_bars)
+    else:
+        # neutral stay the course
+        pass
 
 
 def noPosition(ring, position, working_bars):
-    print(working_bars.iloc[-1]['time'], ring.OK())
-    if ring.OK() <= -ring.N:
+    if ring.sum() <= -ring.N:
         open_short(position, working_bars)
-    elif ring.OK() >= ring.N:
+    elif ring.sum() >= ring.N:
         open_long(position, working_bars)
     else:
         pass
     pass
 
 
-def evaluate_position(position, working_bars):
-    pass
-
-
 def open_long(position, working_bars):
+    print("\nLong opening position")
     current_bar = working_bars.iloc[-1]
     price = current_bar.close
     atr = current_bar.atr
     position.holding = 1
     position.price = price
     position.stop = price - atr
-    pass
+    print(position)
 
 
 def open_short(position, working_bars):
+    print("\nShort opening position")
     current_bar = working_bars.iloc[-1]
     price = current_bar.close
     atr = current_bar.atr
     position.holding = -1
     position.price = price
     position.stop = price + atr
-    pass
 
 
 def close_long(position, working_bars):
+    print("Long closing position")
     current_bar = working_bars.iloc[-1]
     price = current_bar.close
     transaction_profit_loss: float = price - position.price
     position.holding = 0
     position.price = None
+    print("transation PL =", transaction_profit_loss)
     return transaction_profit_loss
 
 
 def close_short(position, working_bars):
+    print("Short closing position")
     current_bar = working_bars.iloc[-1]
     price: float = current_bar.close
     transaction_profit_loss: float = price - position.price
     position.holding = 0
     position.price = None
+    print("transation PL =", transaction_profit_loss)
     return transaction_profit_loss
 
 
@@ -151,6 +177,7 @@ def trade_day(day: str):
     for bar in getBar(day):
         bars = bars.append(bar, ignore_index=True)
         if bars.shape[0] > 39:
+            print(bar.time)
             trade_bars(bars, position, ring)
 
 

@@ -17,9 +17,11 @@ class Position:
     holding = 0
     price = None
     stop = None
+    total_profit = 0
 
     def __repr__(self):
-        return f"hold {self.holding}   price: {self.price}   stop: {self.stop}"
+        s =  "hold {}   price {:.2f}   stop {:.2f}"
+        return s.format(self.holding, self.price, self.stop)
 
 
 class Ring:
@@ -78,7 +80,7 @@ def shortPosition(ring, position, working_bars):
 def longPosition(ring, position, working_bars):
     current_bar = working_bars.iloc[-1].copy()
     if current_bar.close <= position.stop:
-        print("long position hit stop -- closing")
+        print("hit stop -- closing long")
         close_long(position, working_bars)
         return
     if ring.sum() >= 2:
@@ -111,7 +113,7 @@ def open_long(position, working_bars):
     position.stop = price - atr
     print()
     print(current_bar['time'], "Long opening position")
-    print("position =", position)
+    print("\tprice {:.2f}   stop {:.2f}".format(price, position.stop))
 
 
 def open_short(position, working_bars):
@@ -123,31 +125,26 @@ def open_short(position, working_bars):
     position.stop = price + atr
     print()
     print(current_bar['time'], "Short opening position")
-    print("position =", position)
+    print("\tprice {:.2f}   stop {:.2f}".format(price, position.stop))
 
 
 def close_long(position, working_bars):
     current_bar = working_bars.iloc[-1]
     price = current_bar.close
     transaction_profit_loss: float = price - position.price
-    print("position =", position)
-    print("transation PL =", transaction_profit_loss)
     position.holding = 0
     position.price = None
     print(current_bar['time'], "Long closing position")
-    return transaction_profit_loss
-
+    position.total_profit += transaction_profit_loss
+    print("\tprice {:.2f}   transaction {:.2f}".format(price, transaction_profit_loss))
 
 def close_short(position, working_bars):
     current_bar = working_bars.iloc[-1]
-    price: float = current_bar.close
-    transaction_profit_loss: float = price - position.price
-    print("position =", position)
-    print("transation PL =", transaction_profit_loss)
+    cover_price: float = current_bar.close
+    transaction_profit_loss: float = position.price - cover_price
     position.holding = 0
     position.price = None
-    print(current_bar['time'], "Short closing position")
-    return transaction_profit_loss
+    print("\tprice {:.2f}   transaction {:.2f}".format(cover_price, transaction_profit_loss))
 
 
 def trade_bars(bars, position, ring):
@@ -182,12 +179,12 @@ def trade_day(day: str):
         bars = bars.append(bar, ignore_index=True)
         if bars.shape[0] > 39:
             trade_bars(bars, position, ring)
-
+    print("DAY PROFIT = {:.3f}".format(position.total_profit))
 
 def main():
     days = os.listdir("../Data/bars1")
     days.sort(reverse=True)
-    for day in days[2:3]:
+    for day in days[0:1]:
         trade_day(day)
 
 

@@ -45,7 +45,7 @@ def wait_for_next_minute():
 def trim_last_bar(bars: list):
     current_time = datetime.utcnow()
     last_bar = bars[-1]
-    last_bar_time = datetime.fromtimestamp(last_bar['t']//1000)
+    last_bar_time = datetime.fromtimestamp(last_bar['t'] // 1000)
     diff_seconds = (current_time - last_bar_time).total_seconds()
     if diff_seconds < 30:
         bars.pop()
@@ -58,35 +58,49 @@ def _get_bars(conid, period, bar, outsideRth=False):
     return r['data']
 
 
+nn = 40
+nn_bars = pd.read_csv('Data/bars1/20211207.csv')
+
+
 def get_bars():
-    conid = SPY
-    period = '40min'
-    bar = '1min'
-    outsideRth = False
-    wait_for_next_minute()
-    bars = _get_bars(conid, period, bar, outsideRth)
-    bars = trim_last_bar(bars)
-    return bars
+    # conid = SPY
+    # period = '40min'
+    # bar = '1min'
+    # outsideRth = False
+    # wait_for_next_minute()
+    # bars = _get_bars(conid, period, bar, outsideRth)
+    # bars = trim_last_bar(bars)
+    # return bars
+    global nn
+    nn += 1
+    if nn < len(nn_bars):
+        return nn_bars.iloc[nn - 4:nn].to_dict('records')
+    else:
+        return None
 
-def bartime(bar):
-    barseconds = bar['t']//1000
-    return datetime.fromtimestamp(barseconds)
 
-def printbars(bars):
+def bar_time(bar):
+    bar_seconds = bar['t'] // 1000
+    return datetime.fromtimestamp(bar_seconds)
+
+
+def print_bars(bars):
     for bar in bars:
-        print(bar, bartime(bar))
+        print(bar, bar_time(bar))
+
 
 if __name__ == '__main__':
-    conid = SPY
-    period = '3min'
-    bar = '1min'
-    outsideRth = False
-    # wait_for_next_minute()
-    print(datetime.utcnow(), datetime.now())
-    bars = _get_bars(conid, period, bar, True)
-    print(bartime(bars[-1]))
-    printbars(bars)
-    bars = trim_last_bar(bars)
-    print()
-    print(bartime(bars[-1]))
-    printbars(bars)
+    # conid = SPY
+    # period = '3min'
+    # bar = '1min'
+    # outsideRth = False
+    # # wait_for_next_minute()
+    # print(datetime.utcnow(), datetime.now())
+    # bars = _get_bars(conid, period, bar, True)
+    # print(bar_time(bars[-1]))
+    # print_bars(bars)
+    # bars = trim_last_bar(bars)
+    # print()
+    # print(bar_time(bars[-1]))
+    # print_bars(bars)
+    pass

@@ -29,4 +29,5 @@ def main():
     close_open_positions()
 
 
+
 print("DONE")

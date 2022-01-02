@@ -7,6 +7,11 @@ Models/
 
 Backtest/.DS_Store
 
-ManageData/__pycache__/
+__pycache__/
+*/__pycache__/
 
 */out.txt
+
+*.ipynb_checkpoints
+
+

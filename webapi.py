@@ -1,0 +1,92 @@
+import numpy as np
+import pandas as pd
+import requests
+import urllib3
+import json
+import time
+from datetime import datetime, timedelta
+
+urllib3.disable_warnings()
+SPY = 756733
+
+
+def get(url, params=None):
+    return requests.get(url, params=params, verify=False).json()
+
+
+def post(url, data=None):
+    return requests.post(url, data, verify=False)
+
+
+def validate():
+    return post("https://localhost:5000/v1/api/sso/validate")
+
+
+def status():
+    return post("https://localhost:5000/v1/api/iserver/auth/status")
+
+
+def reauthenticate():
+    return post("https://localhost:5000/v1/api/iserver/reauthenticate")
+
+
+def logout():
+    return post("https://localhost:5000/v1/api/logout")
+
+
+def wait_for_next_minute():
+    current_time = datetime.now()
+    new_time = current_time.replace(second=0, microsecond=0)
+    uptime = new_time + timedelta(minutes=1, seconds=5)
+    delay = uptime - current_time
+    time.sleep(delay.total_seconds())
+
+
+def trim_last_bar(bars: list):
+    current_time = datetime.utcnow()
+    last_bar = bars[-1]
+    last_bar_time = datetime.fromtimestamp(last_bar['t']//1000)
+    diff_seconds = (current_time - last_bar_time).total_seconds()
+    if diff_seconds < 30:
+        bars.pop()
+    return bars
+
+
+def _get_bars(conid, period, bar, outsideRth=False):
+    payload = {"conid": conid, "period": period, "bar": bar, "outsideRth": outsideRth}
+    r = get("https://localhost:5000/v1/api/iserver/marketdata/history", params=payload)
+    return r['data']
+
+
+def get_bars():
+    conid = SPY
+    period = '40min'
+    bar = '1min'
+    outsideRth = False
+    wait_for_next_minute()
+    bars = _get_bars(conid, period, bar, outsideRth)
+    bars = trim_last_bar(bars)
+    return bars
+
+def bartime(bar):
+    barseconds = bar['t']//1000
+    return datetime.fromtimestamp(barseconds)
+
+def printbars(bars):
+    for bar in bars:
+        print(bar, bartime(bar))
+
+if __name__ == '__main__':
+    conid = SPY
+    period = '3min'
+    bar = '1min'
+    outsideRth = False
+    # wait_for_next_minute()
+    print(datetime.utcnow(), datetime.now())
+    bars = _get_bars(conid, period, bar, True)
+    print(bartime(bars[-1]))
+    printbars(bars)
+    bars = trim_last_bar(bars)
+    print()
+    print(bartime(bars[-1]))
+    printbars(bars)

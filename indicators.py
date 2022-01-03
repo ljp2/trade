@@ -12,7 +12,6 @@ from ta.volume import (
 )
 from ta.momentum import (
     AwesomeOscillatorIndicator,
-    KAMAIndicator,
     PercentagePriceOscillator,
     PercentageVolumeOscillator,
     ROCIndicator,
@@ -23,10 +22,9 @@ from ta.momentum import (
 from ta.trend import ADXIndicator, AroonIndicator, CCIIndicator, DPOIndicator
 from ta.volatility import KeltnerChannel, UlcerIndex, AverageTrueRange
 
-def add_indicators(df: pd.DataFrame, gain=True):
-    if gain:
-        df["gain"] = df["close"].shift(-5) - df["close"]
 
+def add_indicators(bars: list) -> pd.DataFrame:
+    df = pd.DataFrame(bars)
     atr = AverageTrueRange(df.high, df.low, df.close)
     df["atr"] = atr.average_true_range()
 
@@ -109,3 +107,5 @@ def add_indicators(df: pd.DataFrame, gain=True):
 
     ulcer = UlcerIndex(df.close)
     df["ulcer"] = ulcer.ulcer_index()
+
+    return df

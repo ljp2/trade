@@ -1,9 +1,7 @@
-import numpy as np
 import pandas as pd
 import requests
 import urllib3
-import json
-import time
+from time import sleep
 from datetime import datetime, timedelta
 
 urllib3.disable_warnings()
@@ -39,7 +37,7 @@ def wait_for_next_minute():
     new_time = current_time.replace(second=0, microsecond=0)
     uptime = new_time + timedelta(minutes=1, seconds=5)
     delay = uptime - current_time
-    time.sleep(delay.total_seconds())
+    sleep(delay.total_seconds())
 
 
 def trim_last_bar(bars: list):
@@ -52,17 +50,17 @@ def trim_last_bar(bars: list):
     return bars
 
 
-def _get_bars(conid, period, bar, outsideRth=False):
+def _get_bars(conid, period, bar, outsideRth=False) -> list:
     payload = {"conid": conid, "period": period, "bar": bar, "outsideRth": outsideRth}
     r = get("https://localhost:5000/v1/api/iserver/marketdata/history", params=payload)
     return r['data']
 
 
-nn = 40
+nn = 41
 nn_bars = pd.read_csv('Data/bars1/20211207.csv')
 
 
-def get_bars():
+def get_bars() -> list:
     # conid = SPY
     # period = '40min'
     # bar = '1min'
@@ -74,7 +72,7 @@ def get_bars():
     global nn
     nn += 1
     if nn < len(nn_bars):
-        return nn_bars.iloc[nn - 4:nn].to_dict('records')
+        return nn_bars.iloc[nn - 40:nn].to_dict('records')
     else:
         return None
 

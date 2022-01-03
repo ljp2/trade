@@ -3,6 +3,7 @@ from time import sleep
 
 from position import Position
 from webapi import get_bars
+from indicators import add_indicators
 
 
 def setup_for_trading():
@@ -16,6 +17,7 @@ def close_open_positions():
 
 def trade_next_bar():
     bars = get_bars()
+    df = add_indicators(bars)
 
     pass
 
@@ -27,6 +29,10 @@ def main():
         trade_next_bar()
         sleep(1)
     close_open_positions()
+
+
+if __name__ == '__main__':
+    trade_next_bar()
 
 
 

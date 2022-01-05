@@ -32,6 +32,11 @@ def logout():
     return post("https://localhost:5000/v1/api/logout")
 
 
+def get_SPY_position():
+    r = get("https://localhost:5000/v1/api/portfolio/DU276200/position/756733")
+    print(r)
+
+
 def wait_for_next_minute():
     current_time = datetime.now()
     new_time = current_time.replace(second=0, microsecond=0)
@@ -56,25 +61,26 @@ def _get_bars(conid, period, bar, outsideRth=False) -> list:
     return r['data']
 
 
-nn = 41
-nn_bars = pd.read_csv('Data/bars1/20211207.csv')
+# nn = 41
+# nn_bars = pd.read_csv('Data/bars1/20211207.csv')
 
 
 def get_bars() -> list:
-    # conid = SPY
-    # period = '40min'
-    # bar = '1min'
-    # outsideRth = False
-    # wait_for_next_minute()
-    # bars = _get_bars(conid, period, bar, outsideRth)
-    # bars = trim_last_bar(bars)
-    # return bars
-    global nn
-    nn += 1
-    if nn < len(nn_bars):
-        return nn_bars.iloc[nn - 40:nn].to_dict('records')
-    else:
-        return None
+    conid = SPY
+    period = '40min'
+    bar = '1min'
+    outsideRth = False
+    wait_for_next_minute()
+    bars = _get_bars(conid, period, bar, outsideRth)
+    bars = trim_last_bar(bars)
+    return bars
+
+    # global nn
+    # nn += 1
+    # if nn < len(nn_bars):
+    #     return nn_bars.iloc[nn - 40:nn].to_dict('records')
+    # else:
+    #     return None
 
 
 def bar_time(bar):
@@ -101,4 +107,4 @@ if __name__ == '__main__':
     # print()
     # print(bar_time(bars[-1]))
     # print_bars(bars)
-    pass
+    get_SPY_position()

@@ -18,7 +18,7 @@ class TradingApp(EWrapper, EClient):
         self.event_position_change = threading.Event()
 
         self.event_connect.clear()
-        self.connect("127.0.0.1", 7497, clientId=1)
+        self.connect("127.0.0.1", 4002, clientId=1)
         threading.Thread(target=self.websocket_con, daemon=True).start()
 
     def nextValidId(self, orderId: int):
@@ -38,14 +38,14 @@ class TradingApp(EWrapper, EClient):
         print("redID: {}, contract:{}".format(reqId, contractDetails))
 
     def historicalData(self, reqId, bar):
-        self.bars.append((bar.date, bar.open, bar.high, bar.low, bar.close, bar.volume, bar.average))
+        self.bars.append((bar.date, bar.open, bar.high, bar.low, bar.close,
+                          float(bar.volume), float(bar.wap)))
 
     def historicalDataEnd(self, reqId: int, start: str, end: str):
-        df = pd.DataFrame(self.bars, columns="date open high low close volume wap".split()).set_index('date')
-        df.to_csv(open('C:/junk/bars_year.csv', 'w'), line_terminator='\n')
+        # df = pd.DataFrame(self.bars, columns="date open high low close volume wap".split()).set_index('date')
         self.event_datadone.set()
 
-    def get_bars(self, duration: str):
+    def get_barsDF(self, duration: str):
         self.bars = []
         contract = Contract()
         contract.symbol = "SPY"
@@ -63,7 +63,8 @@ class TradingApp(EWrapper, EClient):
                                keepUpToDate=False,
                                chartOptions=[])
         self.event_datadone.wait()
-        return self.bars
+        df = pd.DataFrame(self.bars, columns="date open high low close volume wap".split())
+        return df
 
     def placeBUYOrder(self, quantity=1) -> int:
         contract = Contract()
@@ -107,38 +108,19 @@ class TradingApp(EWrapper, EClient):
     def websocket_con(self):
         self.run()
 
-# def websocket_con(app: TradingApp):
-#     app.run()
+
+if __name__ == '__main__':
+    app = TradingApp()
+
+    df = app.get_bars('2700 S')
+    print(df)
+
+    app.reqPositions()
 
 
-# def init_app(app: TradingApp):
-#     app.event_connect.clear()
-#     app.connect("127.0.0.1", 7497, clientId=1)
-#
-#     threading.Thread(target=websocket_con, args=(app,), daemon=True).start()
+    time.sleep(5)
+    app.disconnect()
 
 
-#
-# app = TradingApp()
-# # init_app(app)
-# app.event_connect.wait()
-# time.sleep((1))
-# print("CONNECTED CONNECTED CONNECTED ")
-#
-# app.reqPositions()
-#
-# time.sleep(5)
-#
-# # oid = app.placeBUYOrder()
-# # print('\n placing oid = ', oid)
-#
-# app.event_position_change.set()
-# # oid = app.placeBUYOrder()
-# # oid = app.placeSELLOrder(2)
-# app.event_position_change.wait()
-#
-# print("main position change")
-#
-# time.sleep(1)
-# app.disconnect()
-# print('DONE DONE DONE')
+
+    print('DONE DONE DONE')

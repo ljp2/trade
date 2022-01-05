@@ -1,3 +1,5 @@
+import numpy as np
+
 class Ring:
     def __init__(self, n: int):
         self.N = n
@@ -21,4 +23,4 @@ class Ring:
         return "{}:{}".format(self.last_val, self.buf)
 
 
-ring = Ring()
+ring = Ring(2)

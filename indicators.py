@@ -23,8 +23,7 @@ from ta.trend import ADXIndicator, AroonIndicator, CCIIndicator, DPOIndicator
 from ta.volatility import KeltnerChannel, UlcerIndex, AverageTrueRange
 
 
-def add_indicators(bars: list) -> pd.DataFrame:
-    df = pd.DataFrame(bars)
+def add_indicators(df: pd.DataFrame) -> pd.DataFrame:
     atr = AverageTrueRange(df.high, df.low, df.close)
     df["atr"] = atr.average_true_range()
 

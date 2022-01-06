@@ -1,0 +1,17 @@
+{
+  "orders": [
+    {
+      "acctId": "DU276200",
+      "conid": 756733,
+      "secType": "STK",
+      "cOID": "my25",
+      "orderType": "MKT",
+      "listingExchange": "SMART",
+      "outsideRTH": false,
+      "side": "BUY",
+      "ticker": "SPY",
+      "tif": "GTC",
+      "quantity": 100
+    }
+  ]
+}

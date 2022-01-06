@@ -3,6 +3,7 @@ import requests
 import urllib3
 from time import sleep
 from datetime import datetime, timedelta
+import json
 
 urllib3.disable_warnings()
 SPY = 756733
@@ -93,6 +94,26 @@ def print_bars(bars):
         print(bar, bar_time(bar))
 
 
+def place_order():
+    url = "https://localhost:5000/v1/api/iserver/account/DU276200/orders"
+    order = {
+        "orders": [
+            dict(acctId="DU276200", conid=756733, secType="STK", cOID="my32", orderType="MKT", listingExchange="SMART",
+                 outsideRTH=False, side="BUY", ticker="SPY", tif="GTC", quantity=200)
+        ]
+    }
+    dmp = json.dumps(order)
+    print(dmp)
+
+    response = requests.post(url, json=order, verify=False)
+
+    print("Status code: ", response.status_code)
+    print("Printing Entire Post Request")
+    print(response.json())
+
+
+
+
 if __name__ == '__main__':
     # conid = SPY
     # period = '3min'
@@ -107,4 +128,5 @@ if __name__ == '__main__':
     # print()
     # print(bar_time(bars[-1]))
     # print_bars(bars)
-    get_SPY_position()
+
+    place_order()

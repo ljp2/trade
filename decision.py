@@ -21,11 +21,11 @@ def evaluate(df: pd.DataFrame) -> int:
     return pred
 
 
-def noPosition(ring: Ring, pos: Position):
+def noPosition(ring: Ring, pos: Position, current_bar: pd.Series):
     if ring.sum() <= -ring.N:
-        open_short(pos)
+        open_short(pos, current_bar)
     elif ring.sum() >= ring.N:
-        open_long(pos)
+        open_long(pos, current_bar)
     else:
         pass
     pass
@@ -34,12 +34,12 @@ def noPosition(ring: Ring, pos: Position):
 def shortPosition(ring: Ring, pos: Position, current_bar: pd.Series):
     if current_bar.close >= pos.stop:
         print("short position hit stop -- closing")
-        close_short(pos)
+        close_short(pos, current_bar)
         return
 
     if ring.sum() >= 2:
         print("change from sell to buy - closing short")
-        close_short(pos)
+        close_short(pos, current_bar)
     elif ring.sum() <= -2:
         # still negative
         pass
@@ -51,14 +51,14 @@ def shortPosition(ring: Ring, pos: Position, current_bar: pd.Series):
 def longPosition(ring: Ring, pos: Position, current_bar: pd.Series):
     if current_bar.close <= pos.stop:
         print("hit stop -- closing long")
-        close_long(pos)
+        close_long(pos, current_bar)
         return
     if ring.sum() >= 2:
         # still positive
         pass
     elif ring.sum() <= -2:
         print("change from buy to sell - closing long")
-        close_long(pos)
+        close_long(pos, current_bar)
     else:
         # neutral stay the course
         pass

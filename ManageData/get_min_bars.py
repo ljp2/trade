@@ -32,7 +32,7 @@ class TradingApp(EWrapper, EClient):
 
     def historicalData(self, reqId, bar):
         bartime = bar.date.split()[1]
-        self.bars.append((bartime, bar.open, bar.high, bar.low, bar.close, bar.volume, bar.average))
+        self.bars.append((bartime, bar.open, bar.high, bar.low, bar.close, bar.volume, bar.wap))
 
     def historicalDataEnd(self, reqId: int, start: str, end: str):
         df = pd.DataFrame(self.bars, columns='time open high low close volume wap'.split()).set_index('time')
@@ -62,7 +62,7 @@ event_connect = threading.Event()
 event_datadone = threading.Event()
 app = TradingApp()
 
-app.connect("127.0.0.1", 4002, clientId=1)
+app.connect("127.0.0.1", 7497, clientId=1)
 
 threading.Thread(target=websocket_con, daemon=True).start()
 event_connect.wait()

@@ -17,10 +17,6 @@ class TradingApp(EWrapper, EClient):
         self.event_datadone = threading.Event()
         self.event_position_change = threading.Event()
 
-        self.event_connect.clear()
-        self.connect("127.0.0.1", 4002, clientId=1)
-        threading.Thread(target=self.websocket_con, daemon=True).start()
-
     def nextValidId(self, orderId: int):
         super().nextValidId(orderId)
         self.nextValidOrderId = orderId
@@ -45,7 +41,8 @@ class TradingApp(EWrapper, EClient):
         # df = pd.DataFrame(self.bars, columns="date open high low close volume wap".split()).set_index('date')
         self.event_datadone.set()
 
-    def get_barsDF(self, duration: str):
+    def get_barsDF(self, duration: str) -> pd.DataFrame:
+        self.event_datadone.clear()
         self.bars = []
         contract = Contract()
         contract.symbol = "SPY"
@@ -105,8 +102,6 @@ class TradingApp(EWrapper, EClient):
         print("PositionEnd")
         self.event_position_change.set()
 
-    def websocket_con(self):
-        self.run()
 
 
 if __name__ == '__main__':
@@ -115,7 +110,6 @@ if __name__ == '__main__':
     df = app.get_bars('2700 S')
     print(df)
 
-    app.reqPositions()
 
 
     time.sleep(5)
